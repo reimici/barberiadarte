@@ -1,0 +1,30 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Service {
+  id       String    @id @default(cuid())
+  name     String
+  duration Int       // duration in minutes, usually 30 or 60
+  price    Float
+  bookings Booking[]
+}
+
+model Booking {
+  id            String   @id @default(cuid())
+  startTime     DateTime // the slot start time
+  endTime       DateTime // the slot end time
+  customerName  String
+  customerPhone String
+  serviceId     String
+  service       Service  @relation(fields: [serviceId], references: [id])
+  status        String   @default("ACTIVE") // ACTIVE or CANCELLED
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
