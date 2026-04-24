@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Providers from "./providers";
 
-const inter = Inter({ subsets: ["latin"] });
-
 export const metadata: Metadata = {
-  title: "Barberia D'Arte",
-  description: "Prenota il tuo appuntamento alla Barberia D'Arte",
+  title: "La Barberia d'Arte | Barbiere di Lusso a Rimini",
+  description:
+    "Prenota il tuo appuntamento alla Barberia d'Arte di Rimini. Taglio classico, rasatura tradizionale e cura della barba d'eccellenza. Stile British Vintage.",
 };
 
 export default function RootLayout({
@@ -17,7 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it">
-      <body className={`${inter.className} bg-stone-50 text-stone-900 antialiased`}>
+      <body className="antialiased">
         <Providers>
           {children}
         </Providers>
