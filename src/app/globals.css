@@ -1,78 +1,97 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Montserrat:wght@300;400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
+/* ── 1. Registrazione dei Design Tokens (Single Source of Truth) ─────────── */
+@theme {
+  /* Primitive Colors (Dati immutabili dal Brand Book) */
+  --color-brand-charcoal: #2C2C2E;   /* Solidità e rigore */
+  --color-brand-gold:     #D4AF37;   /* Preziosità e dettaglio */
+  --color-brand-cream:    #F5F1E1;   /* Leggibilità superiore */
+  --color-brand-forest:   #1A4314;   /* Tradizione British */
 
-/* ── Brand Identity: La Barberia d'Arte ─────────────────────────────────────── */
-:root {
-  --color-charcoal: #2C2C2E;   /* Primary dark / backgrounds */
-  --color-gold:     #D4AF37;   /* Accent / CTA */
-  --color-cream:    #F5F1E1;   /* Light background */
-  --color-forest:   #1A4314;   /* Success / secondary accent */
+  /* Gerarchia Cromatica Semantica (Risolve gli errori di gerarchia) */
+  --color-background-primary: var(--color-brand-cream);
+  --color-background-secondary: #EBE7D5; /* Variante del cream per profondità */
+  
+  --color-text-main: var(--color-brand-charcoal);
+  --color-text-accent: var(--color-brand-gold);
+  --color-text-muted: color-mix(in srgb, var(--color-brand-charcoal), transparent 40%);
+  
+  --color-action-primary: var(--color-brand-gold);
+  --color-action-hover: #B8962C; 
 
+  /* Tipografia */
   --font-display: 'Playfair Display', Georgia, serif;
   --font-body:    'Montserrat', system-ui, sans-serif;
+
+  /* Animazioni integrate nel tema */
+  --animate-fade-up: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-shimmer: shimmer 4s linear infinite;
 }
 
-/* ── Global Reset & Base ─────────────────────────────────────────────────────── */
-*, *::before, *::after {
-  box-sizing: border-box;
+/* ── 2. Layer Base: Fondamenta del Progetto ─────────────────────────────── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--color-background-primary);
+    color: var(--color-text-main);
+    line-height: 1.6; /* Ottimizzazione per la lettura */
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, .h-display {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--color-brand-charcoal);
+  }
 }
 
-html {
-  scroll-behavior: smooth;
+/* ── 3. Layer Components: Astrazione delle Classi Personalizzate ────────── */
+@layer components {
+  /* Divisore Dorato: Firma Visiva */
+  .gold-divider {
+    display: block;
+    width: 80px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-brand-gold), transparent);
+    margin: 2rem auto;
+  }
+
+  /* Testo Shimmer: Effetto Lusso per Titoli */
+  .text-luxury-shimmer {
+    background: linear-gradient(
+      120deg, 
+      var(--color-brand-gold) 30%, 
+      #FFF0BC 50%, 
+      var(--color-brand-gold) 70%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: var(--animate-shimmer);
+  }
+
+  /* Container Premium con Whitespace Generoso */
+  .section-premium {
+    padding-block: clamp(4rem, 10vw, 8rem);
+    max-width: 1200px;
+    margin-inline: auto;
+    padding-inline: 1.5rem;
+  }
 }
 
-body {
-  font-family: var(--font-body);
-  background-color: var(--color-cream);
-  color: var(--color-charcoal);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* ── Typography Utilities ─────────────────────────────────────────────────────── */
-.font-display {
-  font-family: var(--font-display);
-}
-
-.font-body {
-  font-family: var(--font-body);
-}
-
-/* ── Gold divider ─────────────────────────────────────────────────────────────── */
-.gold-divider {
-  display: block;
-  width: 60px;
-  height: 2px;
-  background: var(--color-gold);
-  border-radius: 2px;
-}
-
-/* ── Smooth animations ────────────────────────────────────────────────────────── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.animate-fade-up {
-  animation: fadeUp 0.6s ease-out both;
-}
-
-.animate-fade-up-delay {
-  animation: fadeUp 0.6s ease-out 0.2s both;
+/* ── 4. Keyframes ───────────────────────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200%  center; }
+  to { background-position: 200% center; }
 }
-
-.text-shimmer {
-  background: linear-gradient(90deg, var(--color-gold), #f5d87b, var(--color-gold));
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 4s linear infinite;
-}
-

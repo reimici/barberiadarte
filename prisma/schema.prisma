@@ -9,23 +9,67 @@ datasource db {
 
 
 model Service {
-  id       String    @id @default(cuid())
-  name     String
-  duration Int       // duration in minutes, usually 30 or 60
-  price    Float
-  bookings Booking[]
+  id              String    @id @default(cuid())
+  name            String
+  description     String    @default("Rituale artigianale premium della Barberia d'Arte.")
+  durationMinutes Int       @default(45)
+  // Importo in centesimi per evitare errori floating-point
+  // e semplificare future integrazioni con gateway di pagamento.
+  price           Int       @default(0) @map("price_cents")
+  // Colonne legacy mantenute per migrazione progressiva senza perdita dati.
+  legacyDuration  Int?      @map("duration")
+  legacyPrice     Float?    @map("price")
+  isPremium       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  bookings        Booking[]
+
+  // Ricerca veloce nel catalogo premium e ordinamento per durata.
+  @@index([isPremium, durationMinutes])
+  // Evita duplicazioni di naming nel listino esperienziale.
+  @@unique([name])
+}
+
+model User {
+  id          String    @id @default(cuid())
+  fullName    String
+  phone       String    @unique
+  email       String?   @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  bookings    Booking[]
+
+  // Accesso rapido per recupero cliente in area booking/admin.
+  @@index([fullName])
 }
 
 model Booking {
-  id            String   @id @default(cuid())
-  startTime     DateTime // the slot start time
-  endTime       DateTime // the slot end time
-  customerName  String
-  customerPhone String
+  id            String        @id @default(cuid())
+  startTime     DateTime
+  endTime       DateTime
+  userId        String
   serviceId     String
-  service       Service  @relation(fields: [serviceId], references: [id])
-  status        String   @default("ACTIVE") // ACTIVE or CANCELLED
+  status        BookingStatus @default(CONFIRMED)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  // Integrità relazionale forte:
+  // - Se un cliente viene rimosso, le sue prenotazioni vengono eliminate.
+  // - Se un servizio viene dismesso, gli slot collegati vengono eliminati.
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  service       Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  // Query principali: agenda cronologica, vista per cliente e controllo conflitti.
+  @@index([startTime, endTime])
+  @@index([userId, startTime])
+  @@index([serviceId, startTime])
+  // Previene doppie prenotazioni identiche sullo stesso slot/servizio/cliente.
+  @@unique([userId, serviceId, startTime])
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }
