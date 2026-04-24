@@ -13,7 +13,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     // Soft delete or hard delete. Let's do hard delete for simplicity, or set status to CANCELLED.
     const updated = await prisma.booking.update({
       where: { id },
-      data: { status: 'CANCELLED' }
+      data: { status: 'CANCELLED' },
     })
 
     return NextResponse.json(updated)

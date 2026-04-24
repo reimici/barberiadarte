@@ -10,7 +10,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format, parseISO } from 'date-fns'
 import { it } from 'date-fns/locale'
-import { Trash2, Lock, Calendar, Loader2, Scissors } from 'lucide-react'
+import { Trash2, Calendar, Loader2, Scissors } from 'lucide-react'
 
 type Booking = {
   id: string
@@ -20,26 +20,39 @@ type Booking = {
   customerPhone: string
   service: {
     name: string
-    price: number
+    priceCents: number
   }
 }
 
 export default function AdminDashboard() {
   const [password, setPassword] = useState('')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [rangeDays, setRangeDays] = useState<1 | 7 | 30 | 90 | 0>(30)
   
   const queryClient = useQueryClient()
 
   const { data: bookings = [], isLoading } = useQuery<Booking[]>({
-    queryKey: ['admin-bookings'],
+    queryKey: ['admin-bookings', rangeDays],
     queryFn: async () => {
-      const res = await fetch('/api/bookings')
-      return res.json()
+      const from = format(new Date(), 'yyyy-MM-dd')
+      const to = rangeDays === 0 ? '' : format(new Date(Date.now() + (rangeDays - 1) * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')
+      const url = to ? `/api/bookings?from=${from}&to=${to}` : `/api/bookings?from=${from}`
+
+      const res = await fetch(url)
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}))
+        throw new Error(payload.error ?? 'Errore nel caricamento prenotazioni')
+      }
+      const payload = await res.json()
+      return Array.isArray(payload) ? payload : []
     },
     // isAdmin guard: in MVP è sempre true, in produzione verificare sessione Supabase
     enabled: isAuthenticated && isAdmin,
     refetchInterval: 5000
   })
+
+  const totalCents = bookings.reduce((sum, booking) => sum + booking.service.priceCents, 0)
+  const totalEuro = (totalCents / 100).toFixed(2)
 
   const cancelMutation = useMutation({
     mutationFn: async (id: string) => {
@@ -67,46 +80,32 @@ export default function AdminDashboard() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#2C2C2E' }}>
+      <div className="flex min-h-screen items-center justify-center bg-text-main p-4">
         <form
           onSubmit={handleLogin}
-          className="p-10 rounded-3xl w-full max-w-sm"
-          style={{ background: 'rgba(245,241,225,0.06)', border: '1px solid rgba(212,175,55,0.2)' }}
+          className="w-full max-w-sm animate-fade-up rounded-3xl border border-background-secondary bg-background-primary/10 p-10 shadow-[0_26px_52px_-30px_color-mix(in_srgb,var(--color-text-main)_80%,transparent)]"
         >
           <div className="flex justify-center mb-8">
-            <div
-              className="w-20 h-20 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(212,175,55,0.15)', border: '2px solid #D4AF37' }}
-            >
-              <Scissors className="w-8 h-8" style={{ color: '#D4AF37' }} />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full border-2 border-action-primary bg-background-primary/10">
+              <Scissors className="h-8 w-8 text-text-accent" />
             </div>
           </div>
-          <h1
-            className="font-display text-3xl font-bold text-center mb-1"
-            style={{ color: '#F5F1E1' }}
-          >
+          <h1 className="mb-1 text-center font-display text-3xl font-bold text-background-primary">
             La Barberia d&apos;Arte
           </h1>
-          <p className="text-center text-sm mb-8" style={{ color: 'rgba(245,241,225,0.4)' }}>
+          <p className="mb-8 text-center font-body text-sm text-background-primary/50">
             Area Riservata — Solo Domenico
           </p>
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl border-2 outline-none mb-4 text-base transition-all"
-            style={{
-              background: 'rgba(245,241,225,0.08)',
-              borderColor: 'rgba(212,175,55,0.3)',
-              color: '#F5F1E1',
-              fontFamily: 'var(--font-body)',
-            }}
+            className="mb-4 w-full rounded-2xl border border-background-secondary bg-background-primary/10 px-4 py-3 font-body text-base text-background-primary placeholder:text-background-primary/50 outline-none transition-all duration-300 focus:border-action-primary focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-action-primary)_25%,transparent)]"
             placeholder="Password"
           />
           <button
             type="submit"
-            className="w-full py-3.5 rounded-xl font-bold text-base tracking-wide transition-all hover:opacity-90"
-            style={{ background: '#D4AF37', color: '#2C2C2E', fontFamily: 'var(--font-body)' }}
+            className="w-full rounded-2xl border border-background-secondary bg-action-primary py-3.5 font-body text-base font-bold tracking-wide text-text-main transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_14px_30px_-18px_color-mix(in_srgb,var(--color-action-primary)_65%,transparent)]"
           >
             Accedi
           </button>
@@ -116,80 +115,95 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: '#F5F1E1' }}>
+    <div className="min-h-screen bg-background-primary p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div
-          className="flex items-center justify-between mb-8 p-6 rounded-2xl"
-          style={{ background: '#2C2C2E' }}
-        >
+        <div className="mb-8 flex items-center justify-between rounded-2xl bg-text-main p-6 shadow-[0_20px_40px_-26px_color-mix(in_srgb,var(--color-text-main)_80%,transparent)]">
           <div className="flex items-center gap-4">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(212,175,55,0.15)', border: '1px solid rgba(212,175,55,0.3)' }}
-            >
-              <Calendar className="w-6 h-6" style={{ color: '#D4AF37' }} />
+            <div className="flex h-12 w-12 items-center justify-center rounded-full border border-background-secondary bg-background-primary/10">
+              <Calendar className="h-6 w-6 text-text-accent" />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-bold" style={{ color: '#F5F1E1' }}>
+              <h1 className="font-display text-2xl font-bold text-background-primary">
                 Gestione Appuntamenti
               </h1>
-              <p className="text-sm" style={{ color: 'rgba(245,241,225,0.45)' }}>
-                Barberia d&apos;Arte · Dashboard
+              <p className="font-body text-sm text-background-primary/50">
+                Barberia d&apos;Arte · {rangeDays === 1 ? 'solo oggi' : rangeDays === 0 ? 'tutti i futuri (incluso oggi)' : `oggi + prossimi ${rangeDays - 1} giorni`}
               </p>
             </div>
           </div>
-          <button
-            onClick={() => setIsAuthenticated(false)}
-            className="px-4 py-2 text-sm font-semibold rounded-lg border transition-all hover:opacity-80"
-            style={{ border: '1px solid rgba(212,175,55,0.3)', color: '#D4AF37' }}
-          >
-            Esci
-          </button>
+          <div className="flex items-center gap-3">
+            <select
+              value={rangeDays}
+              onChange={(e) => setRangeDays(Number(e.target.value) as 1 | 7 | 30 | 90 | 0)}
+              className="rounded-lg border border-background-secondary bg-background-primary/10 px-3 py-2 font-body text-sm font-semibold text-background-primary outline-none transition-all duration-300 focus:border-action-primary"
+              aria-label="Intervallo giorni dashboard"
+            >
+              <option value={1}>Solo oggi</option>
+              <option value={7}>Prossimi 7 giorni</option>
+              <option value={30}>Prossimi 30 giorni</option>
+              <option value={90}>Prossimi 90 giorni</option>
+              <option value={0}>Tutti i futuri (incluso oggi)</option>
+            </select>
+            <button
+              onClick={() => setIsAuthenticated(false)}
+              className="rounded-lg border border-background-secondary px-4 py-2 font-body text-sm font-semibold text-text-accent transition-all duration-300 hover:bg-background-primary/10"
+            >
+              Esci
+            </button>
+          </div>
         </div>
 
-        <div className="rounded-2xl overflow-hidden" style={{ background: '#fff', boxShadow: '0 2px 24px rgba(44,44,46,0.08)', border: '1px solid rgba(44,44,46,0.08)' }}>
+        <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-2xl border border-background-secondary bg-background-primary p-5 shadow-[0_12px_24px_-16px_color-mix(in_srgb,var(--color-text-main)_40%,transparent)]">
+            <p className="font-body text-xs uppercase tracking-[0.2em] text-text-accent">Prenotazioni nel periodo</p>
+            <p className="mt-2 font-display text-3xl text-text-main">{bookings.length}</p>
+          </div>
+          <div className="rounded-2xl border border-background-secondary bg-background-primary p-5 shadow-[0_12px_24px_-16px_color-mix(in_srgb,var(--color-text-main)_40%,transparent)]">
+            <p className="font-body text-xs uppercase tracking-[0.2em] text-text-accent">Valore totale periodo</p>
+            <p className="mt-2 font-display text-3xl text-text-main">€ {totalEuro}</p>
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-2xl border border-background-secondary bg-background-primary shadow-[0_16px_34px_-24px_color-mix(in_srgb,var(--color-text-main)_45%,transparent)]">
           {isLoading ? (
             <div className="flex justify-center p-12">
-              <Loader2 className="w-8 h-8 animate-spin" style={{ color: '#D4AF37' }} />
+              <Loader2 className="h-8 w-8 animate-spin text-text-accent" />
             </div>
           ) : bookings.length === 0 ? (
-            <div className="p-12 text-center" style={{ color: '#888' }}>
+            <div className="p-12 text-center font-body text-text-main/60">
               Nessun appuntamento in programma.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr style={{ background: '#2C2C2E', color: '#F5F1E1' }}>
-                    <th className="p-4 font-semibold text-sm">Data e Ora</th>
-                    <th className="p-4 font-semibold text-sm">Cliente</th>
-                    <th className="p-4 font-semibold text-sm">Servizio</th>
-                    <th className="p-4 font-semibold text-sm text-right">Azioni</th>
+                  <tr className="bg-text-main text-background-primary">
+                    <th className="p-4 font-body text-sm font-semibold">Data e Ora</th>
+                    <th className="p-4 font-body text-sm font-semibold">Cliente</th>
+                    <th className="p-4 font-body text-sm font-semibold">Servizio</th>
+                    <th className="p-4 text-right font-body text-sm font-semibold">Azioni</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-100">
+                <tbody className="divide-y divide-background-secondary">
                   {bookings.map((b) => {
                     const date = parseISO(b.startTime)
                     return (
-                      <tr key={b.id} className="hover:bg-stone-50 transition-colors">
+                      <tr key={b.id} className="transition-colors duration-300 hover:bg-background-secondary/40">
                         <td className="p-4">
-                          <div className="font-semibold text-stone-800">
+                          <div className="font-body font-semibold text-text-main">
                             {format(date, 'HH:mm')}
                           </div>
-                          <div className="text-sm text-stone-500 capitalize">
+                          <div className="font-body text-sm capitalize text-text-main/60">
                             {format(date, 'EEEE d MMM', { locale: it })}
                           </div>
                         </td>
                         <td className="p-4">
-                          <div className="font-semibold text-stone-800">{b.customerName}</div>
-                          <div className="text-sm text-stone-500">{b.customerPhone}</div>
+                          <div className="font-body font-semibold text-text-main">{b.customerName}</div>
+                          <div className="font-body text-sm text-text-main/60">{b.customerPhone}</div>
                         </td>
                         <td className="p-4">
-                          <div
-                            className="inline-block px-3 py-1 rounded-full text-sm font-medium"
-                            style={{ background: 'rgba(212,175,55,0.12)', color: '#2C2C2E', border: '1px solid rgba(212,175,55,0.3)' }}
-                          >
+                          <div className="inline-block rounded-full border border-background-secondary bg-action-primary/15 px-3 py-1 font-body text-sm font-medium text-text-main">
                             {b.service.name}
                           </div>
                         </td>
@@ -201,7 +215,7 @@ export default function AdminDashboard() {
                               }
                             }}
                             disabled={cancelMutation.isPending}
-                            className="p-2 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                            className="rounded-lg p-2 text-text-main/55 transition-all duration-300 hover:bg-background-secondary hover:text-text-accent disabled:opacity-50"
                             title="Annulla prenotazione"
                           >
                             <Trash2 className="w-5 h-5" />

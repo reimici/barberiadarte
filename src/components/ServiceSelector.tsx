@@ -6,8 +6,10 @@ import { Scissors, Loader2, AlertCircle } from 'lucide-react'
 type Service = {
   id: string
   name: string
-  duration: number
-  price: number
+  description: string
+  durationMinutes: number
+  priceCents: number
+  isPremium: boolean
 }
 
 export default function ServiceSelector({ 
@@ -97,12 +99,17 @@ export default function ServiceSelector({
                  <h3 className="text-lg font-bold text-stone-800">{service.name}</h3>
                  <div className="flex items-center gap-2 mt-1.5">
                    <span className="px-2.5 py-1 bg-stone-100 text-stone-600 text-xs font-semibold rounded-md">
-                     {service.duration} min
+                    {service.durationMinutes} min
                    </span>
+                  {service.isPremium && (
+                    <span className="px-2.5 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-md">
+                      Premium
+                    </span>
+                  )}
                  </div>
                </div>
                <div className="text-2xl font-black text-emerald-700 tracking-tight">
-                 €{service.price}
+                €{(service.priceCents / 100).toFixed(2)}
                </div>
              </div>
           ))}

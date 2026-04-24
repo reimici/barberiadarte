@@ -18,8 +18,10 @@ export interface Appointment {
 export interface Service {
   id: string
   name: string
-  duration: number          // minuti
-  price: number
+  description: string
+  durationMinutes: number   // minuti
+  priceCents: number        // centesimi
+  isPremium: boolean
 }
 
 export interface TimeSlot {

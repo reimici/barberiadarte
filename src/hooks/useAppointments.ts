@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useMemo } from 'react'
+import { useState, useCallback } from 'react'
 import { format } from 'date-fns'
 import { MOCK_APPOINTMENTS } from '@/lib/mock-data'
 import type { Appointment, BookingFormData } from '@/types'
@@ -80,6 +80,7 @@ interface UseAppointmentsReturn {
     formData: BookingFormData,
     selectedDate: Date,
     selectedTime: string,
+    serviceId: string,
     serviceName: string
   ) => Promise<{ success: boolean; message: string }>
 }
@@ -127,8 +128,33 @@ export function useAppointments(): UseAppointmentsReturn {
       formData: BookingFormData,
       selectedDate: Date,
       selectedTime: string,
+      serviceId: string,
       serviceName: string
     ): Promise<{ success: boolean; message: string }> => {
+      const [hour, minute] = selectedTime.split(':').map(Number)
+      const startDate = new Date(selectedDate)
+      startDate.setHours(hour, minute, 0, 0)
+      const endDate = new Date(startDate.getTime() + SLOT_DURATION_MINUTES * 60 * 1000)
+
+      const customerName = `${formData.nome} ${formData.cognome}`.trim()
+
+      const res = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          startTime: startDate.toISOString(),
+          endTime: endDate.toISOString(),
+          customerName,
+          customerPhone: formData.telefono,
+          serviceId,
+        }),
+      })
+
+      if (!res.ok) {
+        const payload = await res.json().catch(() => ({}))
+        throw new Error(payload.error ?? 'Impossibile confermare la prenotazione')
+      }
+
       const newAppointment: Appointment = {
         id: `mock-${Date.now()}`,
         createdAt: new Date().toISOString(),
@@ -151,7 +177,7 @@ export function useAppointments(): UseAppointmentsReturn {
       // ─── REPLACE ABOVE with Supabase insert in production ─────────────────
 
       // Simulate async operation
-      await new Promise((r) => setTimeout(r, 800))
+      await new Promise((r) => setTimeout(r, 250))
 
       // Update local mock state to reflect the new booking
       setAppointments((prev) => [...prev, newAppointment])

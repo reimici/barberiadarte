@@ -54,34 +54,35 @@ export default function TimeSlotSelector({
 }: TimeSlotSelectorProps) {
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i))
   const today = startOfDay(new Date())
+  const selectedDateLabel = selectedDate ? format(selectedDate, 'EEEE d MMMM', { locale: it }) : ''
 
   return (
-    <div className="w-full">
+    <div className="w-full animate-fade-up space-y-6">
       {/* ── Week navigation ── */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between rounded-2xl border border-background-secondary bg-background-primary/70 px-3 py-2 shadow-[0_12px_30px_-20px_color-mix(in_srgb,var(--color-text-main)_35%,transparent)]">
         <button
           onClick={() => onWeekChange(addDays(weekStart, -7))}
-          className="p-2 rounded-full border-2 border-stone-200 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all"
+          className="rounded-full border border-background-secondary bg-background-primary p-2 text-text-main transition-all duration-300 hover:border-action-primary hover:text-text-accent hover:shadow-[0_10px_20px_-12px_color-mix(in_srgb,var(--color-action-primary)_50%,transparent)]"
           aria-label="Settimana precedente"
         >
-          <ChevronLeft className="w-5 h-5 text-stone-600" />
+          <ChevronLeft className="h-5 w-5" />
         </button>
 
-        <span className="font-semibold text-stone-700 text-sm tracking-wide uppercase">
+        <span className="font-body text-sm font-semibold uppercase tracking-[0.15em] text-text-main">
           {format(weekStart, 'd MMM', { locale: it })} — {format(addDays(weekStart, 6), 'd MMM yyyy', { locale: it })}
         </span>
 
         <button
           onClick={() => onWeekChange(addDays(weekStart, 7))}
-          className="p-2 rounded-full border-2 border-stone-200 hover:border-[#D4AF37] hover:bg-[#D4AF37]/10 transition-all"
+          className="rounded-full border border-background-secondary bg-background-primary p-2 text-text-main transition-all duration-300 hover:border-action-primary hover:text-text-accent hover:shadow-[0_10px_20px_-12px_color-mix(in_srgb,var(--color-action-primary)_50%,transparent)]"
           aria-label="Settimana successiva"
         >
-          <ChevronRight className="w-5 h-5 text-stone-600" />
+          <ChevronRight className="h-5 w-5" />
         </button>
       </div>
 
       {/* ── Day pills ── */}
-      <div className="grid grid-cols-7 gap-1.5 mb-6">
+      <div className="grid grid-cols-7 gap-2">
         {days.map((day, i) => {
           const closed = isDayClosed(day)
           const isPast = day < today
@@ -93,32 +94,28 @@ export default function TimeSlotSelector({
               key={i}
               onClick={() => !isDisabled && onDateSelect(day)}
               disabled={isDisabled}
-              className={`flex flex-col items-center py-2.5 px-1 rounded-xl border-2 text-center transition-all duration-200
+              className={`flex flex-col items-center rounded-2xl border px-1 py-3 text-center transition-all duration-300
                 ${isDisabled
-                  ? 'border-stone-100 bg-stone-50 opacity-40 cursor-not-allowed'
+                  ? 'cursor-not-allowed border-background-secondary bg-background-primary/50 opacity-45'
                   : isSelected
-                  ? 'border-[#D4AF37] text-white shadow-md'
-                  : 'border-stone-200 bg-white hover:border-[#D4AF37]/60 hover:shadow-sm cursor-pointer'
+                  ? 'border-action-primary bg-text-main text-background-primary shadow-[0_14px_30px_-18px_color-mix(in_srgb,var(--color-action-primary)_60%,transparent)]'
+                  : 'cursor-pointer border-background-secondary bg-background-primary hover:border-action-primary hover:shadow-[0_10px_20px_-16px_color-mix(in_srgb,var(--color-text-main)_45%,transparent)]'
                 }`}
-              style={
-                isSelected
-                  ? { background: '#2C2C2E', borderColor: '#D4AF37' }
-                  : {}
-              }
             >
               <span
-                className="text-xs font-bold uppercase tracking-wide"
-                style={{ color: isSelected ? '#D4AF37' : closed ? '#999' : '#666' }}
+                className={`font-body text-xs font-bold uppercase tracking-wide ${
+                  isSelected ? 'text-text-accent' : closed ? 'text-text-main/45' : 'text-text-main/70'
+                }`}
               >
                 {DAY_NAMES[day.getDay()]}
               </span>
               <span
-                className={`text-base font-extrabold mt-0.5 ${isSelected ? 'text-white' : 'text-stone-800'}`}
+                className={`mt-0.5 font-body text-base font-extrabold ${isSelected ? 'text-background-primary' : 'text-text-main'}`}
               >
                 {format(day, 'd')}
               </span>
               {closed && (
-                <span className="text-[9px] text-stone-400 font-medium mt-0.5 uppercase tracking-wide">
+                <span className="mt-0.5 font-body text-[9px] font-medium uppercase tracking-wide text-text-main/45">
                   Chiuso
                 </span>
               )}
@@ -129,16 +126,13 @@ export default function TimeSlotSelector({
 
       {/* ── Time slots ── */}
       {selectedDate && (
-        <div>
-          <h3
-            className="text-sm font-semibold uppercase tracking-widest mb-3"
-            style={{ color: '#D4AF37' }}
-          >
-            Orari disponibili — {format(selectedDate, 'EEEE d MMMM', { locale: it })}
+        <div className="space-y-4">
+          <h3 className="font-body text-sm font-semibold uppercase tracking-[0.25em] text-text-accent">
+            Orari disponibili — {selectedDateLabel}
           </h3>
 
           {isDayClosed(selectedDate) ? (
-            <p className="text-center text-stone-400 py-6 italic">
+            <p className="rounded-2xl border border-background-secondary bg-background-primary/70 py-6 text-center font-body italic text-text-main/60">
               La barberia è chiusa questo giorno.
             </p>
           ) : (
@@ -152,23 +146,13 @@ export default function TimeSlotSelector({
                     key={time}
                     disabled={!available}
                     onClick={() => available && onTimeSelect(time)}
-                    className={`py-2.5 rounded-lg text-sm font-bold text-center border-2 transition-all duration-200
+                    className={`rounded-xl border px-2 py-2.5 text-center font-body text-sm font-bold transition-all duration-300
                       ${!available
-                        ? 'border-stone-100 bg-stone-50 text-stone-300 cursor-not-allowed line-through opacity-70'
+                        ? 'cursor-not-allowed border-background-secondary bg-background-primary/60 text-text-main/40 line-through opacity-70'
                         : isSelected
-                        ? 'shadow-md scale-105'
-                        : 'border-stone-200 bg-white text-stone-700 hover:border-[#D4AF37] hover:text-[#2C2C2E] hover:shadow-sm cursor-pointer'
+                        ? 'scale-[1.02] border-action-primary bg-action-primary text-text-main shadow-[0_14px_30px_-16px_color-mix(in_srgb,var(--color-action-primary)_60%,transparent)]'
+                        : 'cursor-pointer border-background-secondary bg-background-primary text-text-main hover:border-action-primary hover:text-text-accent hover:shadow-[0_8px_18px_-12px_color-mix(in_srgb,var(--color-action-primary)_45%,transparent)]'
                       }`}
-                    style={
-                      isSelected
-                        ? {
-                            background: '#D4AF37',
-                            borderColor: '#D4AF37',
-                            color: '#2C2C2E',
-                            boxShadow: '0 4px 14px rgba(212,175,55,0.4)',
-                          }
-                        : {}
-                    }
                   >
                     {time}
                   </button>
@@ -180,7 +164,7 @@ export default function TimeSlotSelector({
       )}
 
       {!selectedDate && (
-        <p className="text-center text-stone-400 py-8 italic text-sm">
+        <p className="rounded-2xl border border-background-secondary bg-background-primary/60 py-8 text-center font-body text-sm italic text-text-main/60">
           ← Seleziona un giorno per vedere gli orari disponibili
         </p>
       )}

@@ -11,74 +11,47 @@ import type { BookingFormData } from '@/types'
 type Service = {
   id: string
   name: string
-  duration: number
-  price: number
+  description: string
+  durationMinutes: number
+  priceCents: number
+  isPremium: boolean
 }
 
 // ─── Section Components ───────────────────────────────────────────────────────
 
 function HeroSection({ onBookCta }: { onBookCta: () => void }) {
   return (
-    <section
-      className="relative min-h-[92vh] flex flex-col items-center justify-center text-center px-6 py-24 overflow-hidden"
-      style={{ background: '#2C2C2E' }}
-    >
+    <section className="relative flex min-h-[92vh] flex-col items-center justify-center overflow-hidden bg-text-main px-6 py-24 text-center">
       {/* Background texture overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.04]"
-        style={{
-          backgroundImage: `repeating-linear-gradient(
-            45deg,
-            #D4AF37 0,
-            #D4AF37 1px,
-            transparent 0,
-            transparent 50%
-          )`,
-          backgroundSize: '20px 20px',
-        }}
-      />
+      <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,var(--color-action-primary)_0,var(--color-action-primary)_1px,transparent_0,transparent_50%)] bg-[length:20px_20px] opacity-[0.04]" />
 
       {/* Decorative top line */}
       <div className="flex items-center gap-4 mb-8 animate-fade-up">
         <span className="gold-divider" />
-        <span
-          className="text-xs tracking-[0.4em] uppercase font-semibold"
-          style={{ color: '#D4AF37' }}
-        >
+        <span className="font-body text-xs font-semibold uppercase tracking-[0.4em] text-text-accent">
           Rimini · Fondato nel 2010
         </span>
         <span className="gold-divider" />
       </div>
 
       {/* Main title */}
-      <h1
-        className="font-display text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-4 animate-fade-up"
-        style={{ color: '#F5F1E1' }}
-      >
+      <h1 className="mb-4 animate-fade-up font-display text-5xl font-bold leading-tight text-background-primary md:text-7xl lg:text-8xl">
         La Barberia
         <br />
-        <span className="italic text-shimmer">d&apos;Arte</span>
+        <span className="text-luxury-shimmer italic">d&apos;Arte</span>
       </h1>
 
       {/* Tagline */}
-      <p
-        className="mt-6 text-lg md:text-xl max-w-xl mx-auto leading-relaxed animate-fade-up-delay"
-        style={{ color: 'rgba(245,241,225,0.65)', fontWeight: 300 }}
-      >
+      <p className="mt-6 max-w-xl animate-fade-up font-body text-lg font-light leading-relaxed text-background-primary/70 [animation-delay:120ms] md:text-xl">
         Dove la tradizione britannica incontra l&apos;artigianalità italiana.
         Ogni taglio è un&apos;opera d&apos;arte.
       </p>
 
       {/* CTA */}
-      <div className="mt-10 animate-fade-up-delay">
+      <div className="mt-10 animate-fade-up [animation-delay:180ms]">
         <button
           onClick={onBookCta}
-          className="px-10 py-4 text-base font-bold tracking-widest uppercase rounded-full transition-all duration-300 hover:scale-105 hover:shadow-2xl"
-          style={{
-            background: '#D4AF37',
-            color: '#2C2C2E',
-            boxShadow: '0 8px 30px rgba(212,175,55,0.4)',
-          }}
+          className="rounded-full border border-background-secondary bg-action-primary px-10 py-4 font-body text-base font-bold uppercase tracking-widest text-text-main transition-all duration-300 hover:scale-105 hover:shadow-[0_18px_38px_-18px_color-mix(in_srgb,var(--color-action-primary)_65%,transparent)]"
         >
           Prenota Ora
         </button>
@@ -86,8 +59,8 @@ function HeroSection({ onBookCta }: { onBookCta: () => void }) {
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40">
-        <div className="w-px h-10" style={{ background: '#D4AF37' }} />
-        <span className="text-[10px] tracking-[0.3em] uppercase" style={{ color: '#D4AF37' }}>
+        <div className="h-10 w-px bg-action-primary" />
+        <span className="font-body text-[10px] uppercase tracking-[0.3em] text-text-accent">
           Scorri
         </span>
       </div>
@@ -97,58 +70,44 @@ function HeroSection({ onBookCta }: { onBookCta: () => void }) {
 
 function StorySection() {
   return (
-    <section className="py-24 px-6" style={{ background: '#F5F1E1' }}>
+    <section className="bg-background-primary px-6 py-24">
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
         {/* Text */}
         <div>
-          <span
-            className="text-xs tracking-[0.4em] uppercase font-semibold mb-4 block"
-            style={{ color: '#D4AF37' }}
-          >
+          <span className="mb-4 block font-body text-xs font-semibold uppercase tracking-[0.4em] text-text-accent">
             La Nostra Storia
           </span>
-          <h2 className="font-display text-4xl md:text-5xl font-bold leading-tight mb-6" style={{ color: '#2C2C2E' }}>
+          <h2 className="mb-6 font-display text-4xl font-bold leading-tight text-text-main md:text-5xl">
             L&apos;arte del barbiere,{' '}
-            <em className="italic" style={{ color: '#1A4314' }}>reinventata</em>
+            <em className="italic text-text-accent">reinventata</em>
           </h2>
           <span className="gold-divider mb-6" />
-          <p className="text-base leading-relaxed mb-4" style={{ color: '#2C2C2E', opacity: 0.75 }}>
+          <p className="mb-4 font-body text-base leading-relaxed text-text-main/80">
             Ispirata alle grandi barberie di Mayfair e Jermyn Street, la Barberia d&apos;Arte porta a Rimini 
             il rigore estetico britannico, fuso con la passione e la maestria italiana.
           </p>
-          <p className="text-base leading-relaxed" style={{ color: '#2C2C2E', opacity: 0.75 }}>
+          <p className="font-body text-base leading-relaxed text-text-main/80">
             Ogni visita è un rituale: dalla schiuma calda alla lama affilata, dal dopobarba 
             al tocco finale — un&apos;esperienza curata in ogni dettaglio.
           </p>
         </div>
 
         {/* Visual quote */}
-        <div
-          className="rounded-3xl p-10 text-center relative overflow-hidden"
-          style={{ background: '#2C2C2E' }}
-        >
-          <div
-            className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
-            style={{ background: 'linear-gradient(90deg, #D4AF37, #f5d87b, #D4AF37)' }}
-          />
+        <div className="relative overflow-hidden rounded-3xl bg-text-main p-10 text-center shadow-[0_30px_60px_-30px_color-mix(in_srgb,var(--color-text-main)_70%,transparent)]">
+          <div className="absolute left-0 right-0 top-0 h-1 rounded-t-3xl bg-[linear-gradient(90deg,color-mix(in_srgb,var(--color-action-primary)_70%,transparent),var(--color-action-primary),color-mix(in_srgb,var(--color-action-primary)_70%,transparent))]" />
           <svg
             className="mx-auto mb-6 opacity-30"
             width="48" height="36" viewBox="0 0 48 36"
-            fill="#D4AF37"
+            fill="currentColor"
+            aria-hidden="true"
           >
             <path d="M0 36V22.4C0 10.667 5.333 3.2 16 0l3.2 4.8C13.067 6.933 9.6 11.2 9.6 16H16V36H0zm28 0V22.4C28 10.667 33.333 3.2 44 0l3.2 4.8C41.067 6.933 37.6 11.2 37.6 16H44V36H28z" />
           </svg>
-          <p
-            className="font-display text-xl italic leading-relaxed mb-6"
-            style={{ color: '#F5F1E1' }}
-          >
+          <p className="mb-6 font-display text-xl italic leading-relaxed text-background-primary">
             Un gentiluomo si riconosce dalla cura di sé.
             Il barbiere ne è il primo custode.
           </p>
-          <span
-            className="text-sm tracking-widest uppercase"
-            style={{ color: '#D4AF37', fontWeight: 600 }}
-          >
+          <span className="font-body text-sm font-semibold uppercase tracking-widest text-text-accent">
             — Domenico, Maestro Barbiere
           </span>
         </div>
@@ -176,7 +135,7 @@ function BookingSection({ bookingSectionRef }: { bookingSectionRef: React.RefObj
     if (!selectedDate || !selectedTime || !selectedService) return
     setBookingState('submitting')
     try {
-      const result = await handleBooking(formData, selectedDate, selectedTime, selectedService.name)
+      const result = await handleBooking(formData, selectedDate, selectedTime, selectedService.id, selectedService.name)
       if (result.success) {
         setBookingState('success')
         setSuccessMessage(result.message)
@@ -198,62 +157,47 @@ function BookingSection({ bookingSectionRef }: { bookingSectionRef: React.RefObj
     <section
       ref={bookingSectionRef}
       id="prenota"
-      className="py-24 px-6"
-      style={{ background: '#2C2C2E' }}
+      className="bg-text-main px-6 py-24"
     >
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="text-center mb-14">
-          <span
-            className="text-xs tracking-[0.4em] uppercase font-semibold mb-4 block"
-            style={{ color: '#D4AF37' }}
-          >
+          <span className="mb-4 block font-body text-xs font-semibold uppercase tracking-[0.4em] text-text-accent">
             Prenota il Tuo Appuntamento
           </span>
-          <h2
-            className="font-display text-4xl md:text-5xl font-bold"
-            style={{ color: '#F5F1E1' }}
-          >
-            Scegli il tuo <em className="italic text-shimmer">servizio</em>
+          <h2 className="font-display text-4xl font-bold text-background-primary md:text-5xl">
+            Scegli il tuo <em className="text-luxury-shimmer italic">servizio</em>
           </h2>
           <span className="gold-divider mx-auto mt-5" />
         </div>
 
         {/* Success State */}
         {bookingState === 'success' ? (
-          <div
-            className="rounded-3xl p-12 text-center max-w-lg mx-auto"
-            style={{ background: '#1A4314', border: '1px solid rgba(212,175,55,0.3)' }}
-          >
-            <div
-              className="w-20 h-20 rounded-full mx-auto flex items-center justify-center mb-6"
-              style={{ background: 'rgba(212,175,55,0.15)', border: '2px solid #D4AF37' }}
-            >
+          <div className="mx-auto max-w-lg rounded-3xl border border-background-secondary bg-background-primary/10 p-12 text-center shadow-[0_28px_54px_-30px_color-mix(in_srgb,var(--color-action-primary)_55%,transparent)]">
+            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border-2 border-action-primary bg-background-primary/10">
               <svg
                 className="w-10 h-10"
                 viewBox="0 0 24 24" fill="none"
-                stroke="#D4AF37" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                aria-hidden="true"
               >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             </div>
-            <h3 className="font-display text-2xl font-bold mb-3" style={{ color: '#F5F1E1' }}>
+            <h3 className="mb-3 font-display text-2xl font-bold text-background-primary">
               Prenotazione Confermata!
             </h3>
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(245,241,225,0.7)' }}>
+            <p className="font-body text-sm leading-relaxed text-background-primary/75">
               {successMessage}
             </p>
-            <p className="mt-4 text-xs" style={{ color: '#D4AF37' }}>
+            <p className="mt-4 font-body text-xs text-text-accent">
               Riceverai una conferma. A presto!
             </p>
           </div>
         ) : (
           <div className="space-y-10">
             {/* Step 1: Service */}
-            <div
-              className="rounded-3xl p-8"
-              style={{ background: 'rgba(245,241,225,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
-            >
+            <div className="rounded-3xl border border-background-secondary bg-background-primary/10 p-8 shadow-[0_24px_48px_-30px_color-mix(in_srgb,var(--color-text-main)_80%,transparent)]">
               <StepLabel number={1} label="Scegli il Servizio" />
               <div className="mt-6">
                 <ServiceSelector
@@ -269,10 +213,7 @@ function BookingSection({ bookingSectionRef }: { bookingSectionRef: React.RefObj
 
             {/* Step 2: Date & Time */}
             {canShowSlots && (
-              <div
-                className="rounded-3xl p-8 animate-fade-up"
-                style={{ background: 'rgba(245,241,225,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
-              >
+              <div className="animate-fade-up rounded-3xl border border-background-secondary bg-background-primary/10 p-8 shadow-[0_24px_48px_-30px_color-mix(in_srgb,var(--color-text-main)_80%,transparent)]">
                 <StepLabel number={2} label="Scegli Data e Orario" />
                 <div className="mt-6">
                   <TimeSlotSelector
@@ -292,10 +233,7 @@ function BookingSection({ bookingSectionRef }: { bookingSectionRef: React.RefObj
 
             {/* Step 3: Customer data */}
             {canShowForm && (
-              <div
-                className="rounded-3xl p-8 animate-fade-up"
-                style={{ background: 'rgba(245,241,225,0.05)', border: '1px solid rgba(212,175,55,0.15)' }}
-              >
+              <div className="animate-fade-up rounded-3xl border border-background-secondary bg-background-primary/10 p-8 shadow-[0_24px_48px_-30px_color-mix(in_srgb,var(--color-text-main)_80%,transparent)]">
                 <StepLabel number={3} label="I Tuoi Dati" />
                 <div className="mt-6 max-w-md">
                   <BookingForm
@@ -303,7 +241,7 @@ function BookingSection({ bookingSectionRef }: { bookingSectionRef: React.RefObj
                     isSubmitting={bookingState === 'submitting'}
                   />
                   {bookingState === 'error' && (
-                    <p className="mt-4 text-sm text-red-400 text-center">
+                    <p className="mt-4 rounded-xl border border-background-secondary bg-background-primary/10 px-4 py-3 text-center font-body text-sm text-text-accent">
                       Si è verificato un errore. Riprova.
                     </p>
                   )}
@@ -320,13 +258,10 @@ function BookingSection({ bookingSectionRef }: { bookingSectionRef: React.RefObj
 function StepLabel({ number, label }: { number: number; label: string }) {
   return (
     <div className="flex items-center gap-4">
-      <div
-        className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-        style={{ background: '#D4AF37', color: '#2C2C2E' }}
-      >
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-background-secondary bg-action-primary font-body text-sm font-bold text-text-main shadow-[0_10px_20px_-12px_color-mix(in_srgb,var(--color-action-primary)_60%,transparent)]">
         {number}
       </div>
-      <h3 className="font-display text-xl font-bold" style={{ color: '#F5F1E1' }}>
+      <h3 className="font-display text-xl font-bold text-background-primary">
         {label}
       </h3>
     </div>
@@ -336,25 +271,22 @@ function StepLabel({ number, label }: { number: number; label: string }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function Home() {
-  const bookingSectionRef = { current: null as HTMLElement | null }
+  const bookingSectionRef: React.RefObject<HTMLElement | null> = { current: null }
 
   const scrollToBooking = () => {
     document.getElementById('prenota')?.scrollIntoView({ behavior: 'smooth' })
   }
 
   return (
-    <main className="min-h-screen" style={{ background: '#F5F1E1' }}>
+    <main className="min-h-screen bg-background-primary">
       <HeroSection onBookCta={scrollToBooking} />
       <StorySection />
       <BookingSection bookingSectionRef={bookingSectionRef} />
 
       {/* Footer */}
-      <footer
-        className="py-8 text-center text-xs tracking-widest uppercase"
-        style={{ background: '#2C2C2E', color: 'rgba(245,241,225,0.35)' }}
-      >
+      <footer className="bg-text-main py-8 text-center font-body text-xs uppercase tracking-widest text-background-primary/40">
         © {new Date().getFullYear()} La Barberia d&apos;Arte · Rimini ·{' '}
-        <span style={{ color: '#D4AF37' }}>Since 2010</span>
+        <span className="text-text-accent">Since 2010</span>
       </footer>
     </main>
   )
